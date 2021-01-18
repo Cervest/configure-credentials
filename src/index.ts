@@ -68,7 +68,6 @@ const main = () => {
     INPUT_CLUSTER: cluster,
     INPUT_KUBE_CONFIG: encodedKubeConfig,
   } = process.env
-  console.log(process.env)
 
   if (!awsAccountId) {
     throw "aws-account-id must be set."

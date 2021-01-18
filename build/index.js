@@ -50,7 +50,6 @@ const setKubernetesConfig = (awsAccountId, encodedKubeConfig, cluster) => {
 };
 const main = () => {
     const { INPUT_AWS_ACCOUNT_ID: awsAccountId, INPUT_AWS_ACCESS_KEY_ID: awsAccessKeyId, INPUT_AWS_SECRET_ACCESS_KEY: awsSecretAccessKey, INPUT_CLUSTER: cluster, INPUT_KUBE_CONFIG: encodedKubeConfig, } = process.env;
-    console.log(process.env);
     if (!awsAccountId) {
         throw "aws-account-id must be set.";
     }
