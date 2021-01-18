@@ -1,0 +1,17 @@
+name: init-credentials
+description: "Set up AWS and Kubernetes credentials to be used by subsequent steps."
+inputs:
+  aws_account_id:
+    required: true
+  aws_access_key_id:
+    required: true
+  aws_secret_access_key:
+    required: true
+  kube_config:
+    required: true
+  cluster:
+    description: "Which cluster to configure the config."
+    required: true
+runs:
+  using: "node12"
+  main: "build/index.js"
