@@ -103,7 +103,12 @@ const main = () => {
     throw "cluster must be set."
   }
 
-  setAWSCredentials(awsAccessKeyId, awsSecretAccessKey, awsIamRoleName, awsAccountId)
+  setAWSCredentials(
+    awsAccessKeyId,
+    awsSecretAccessKey,
+    awsIamRoleName,
+    awsAccountId
+  )
   dockerECRLogin(awsAccountId)
   setKubernetesConfig(awsAccountId, encodedKubeConfig, cluster)
 }
