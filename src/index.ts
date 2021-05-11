@@ -15,17 +15,29 @@ const shell = (cmd: string): string => {
 
 const setAWSCredentials = (
   awsAccessKeyId: string,
-  awsSecretAccessKey: string
+  awsSecretAccessKey: string,
+  awsIamRoleName?: string,
+  awsAccountId?: string
 ) => {
   const creds = `
   [default]
   aws_access_key_id=${awsAccessKeyId}
   aws_secret_access_key=${awsSecretAccessKey}
   `
-  const conf = `
+  let conf = `
   [default]
   region=eu-west-1
   `
+
+  if (awsIamRoleName) {
+    conf = `
+    ${conf}
+    
+    [profile ${awsIamRoleName}]
+    source_profile = default
+    role_arn = arn:aws:iam::${awsAccountId}:role/${awsIamRoleName}
+    `
+  }
 
   const homeDir = os.homedir()
   const awsPath = path.join(homeDir, ".aws")
@@ -46,7 +58,11 @@ const dockerECRLogin = (awsAccountId: string) => {
   console.log(loginResult)
 }
 
-const setKubernetesConfig = (awsAccountId: string, encodedKubeConfig: string, cluster: string) => {
+const setKubernetesConfig = (
+  awsAccountId: string,
+  encodedKubeConfig: string,
+  cluster: string
+) => {
   const kubeConfig = Buffer.from(encodedKubeConfig, "base64").toString()
   const homeDir = os.homedir()
   const kubePath = path.join(homeDir, ".kube")
@@ -67,6 +83,7 @@ const main = () => {
     INPUT_AWS_SECRET_ACCESS_KEY: awsSecretAccessKey,
     INPUT_CLUSTER: cluster,
     INPUT_KUBE_CONFIG: encodedKubeConfig,
+    INPUT_AWS_IAM_ROLE_NAME: awsIamRoleName,
   } = process.env
 
   if (!awsAccountId) {
@@ -85,7 +102,7 @@ const main = () => {
     throw "cluster must be set."
   }
 
-  setAWSCredentials(awsAccessKeyId, awsSecretAccessKey)
+  setAWSCredentials(awsAccessKeyId, awsSecretAccessKey, awsIamRoleName, awsAccountId)
   dockerECRLogin(awsAccountId)
   setKubernetesConfig(awsAccountId, encodedKubeConfig, cluster)
 }
