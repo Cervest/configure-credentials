@@ -34,8 +34,9 @@ const setAWSCredentials = (
     ${conf}
     
     [profile ${awsIamRoleName}]
-    source_profile = default
-    role_arn = arn:aws:iam::${awsAccountId}:role/${awsIamRoleName}
+    region=eu-west-1
+    source_profile=default
+    role_arn=arn:aws:iam::${awsAccountId}:role/${awsIamRoleName}
     `
   }
 
