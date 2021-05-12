@@ -15,30 +15,17 @@ const shell = (cmd: string): string => {
 
 const setAWSCredentials = (
   awsAccessKeyId: string,
-  awsSecretAccessKey: string,
-  awsIamRoleName?: string,
-  awsAccountId?: string
+  awsSecretAccessKey: string
 ) => {
   const creds = `
   [default]
   aws_access_key_id=${awsAccessKeyId}
   aws_secret_access_key=${awsSecretAccessKey}
   `
-  let conf = `
+  const conf = `
   [default]
   region=eu-west-1
   `
-
-  if (awsIamRoleName) {
-    conf = `
-    ${conf}
-    
-    [profile ${awsIamRoleName}]
-    region=eu-west-1
-    source_profile=default
-    role_arn=arn:aws:iam::${awsAccountId}:role/${awsIamRoleName}
-    `
-  }
 
   const homeDir = os.homedir()
   const awsPath = path.join(homeDir, ".aws")
@@ -49,6 +36,26 @@ const setAWSCredentials = (
   fs.writeFileSync(credPath, creds)
   fs.writeFileSync(confPath, conf)
   console.log("AWS credentials written to ~/.aws/credentials")
+}
+
+const setAWSAssumeRoleProfile = (
+  awsIamRoleName: string,
+  awsAccountId: string
+) => {
+  const profile = `
+
+  [profile ${awsIamRoleName}]
+  region=eu-west-1
+  source_profile=default
+  role_arn=arn:aws:iam::${awsAccountId}:role/${awsIamRoleName}
+  `
+
+  const homeDir = os.homedir()
+  const awsPath = path.join(homeDir, ".aws")
+  const confPath = path.join(awsPath, "config")
+
+  fs.appendFileSync(confPath, profile)
+  console.log("AWS assume role profile added to ~/.aws/config")
 }
 
 const dockerECRLogin = (awsAccountId: string) => {
@@ -103,12 +110,10 @@ const main = () => {
     throw "cluster must be set."
   }
 
-  setAWSCredentials(
-    awsAccessKeyId,
-    awsSecretAccessKey,
-    awsIamRoleName,
-    awsAccountId
-  )
+  setAWSCredentials(awsAccessKeyId, awsSecretAccessKey)
+  if (awsIamRoleName) {
+    setAWSAssumeRoleProfile(awsIamRoleName, awsAccountId)
+  }
   dockerECRLogin(awsAccountId)
   setKubernetesConfig(awsAccountId, encodedKubeConfig, cluster)
 }
