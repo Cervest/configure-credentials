@@ -12,6 +12,8 @@ inputs:
   cluster:
     description: "Which cluster to configure the config."
     required: true
+  aws_iam_role_name:
+    description: "Used to set up another local AWS profile for assuming another IAM role; required for cross-account k8s auth."
 runs:
   using: "node12"
   main: "build/index.js"

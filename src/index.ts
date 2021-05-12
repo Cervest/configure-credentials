@@ -38,6 +38,26 @@ const setAWSCredentials = (
   console.log("AWS credentials written to ~/.aws/credentials")
 }
 
+const setAWSAssumeRoleProfile = (
+  awsIamRoleName: string,
+  awsAccountId: string
+) => {
+  const profile = `
+
+  [profile ${awsIamRoleName}]
+  region=eu-west-1
+  source_profile=default
+  role_arn=arn:aws:iam::${awsAccountId}:role/${awsIamRoleName}
+  `
+
+  const homeDir = os.homedir()
+  const awsPath = path.join(homeDir, ".aws")
+  const confPath = path.join(awsPath, "config")
+
+  fs.appendFileSync(confPath, profile)
+  console.log("AWS assume role profile added to ~/.aws/config")
+}
+
 const dockerECRLogin = (awsAccountId: string) => {
   const loginPassword = shell("aws ecr get-login-password").trim()
   const loginResult = shell(
@@ -46,7 +66,11 @@ const dockerECRLogin = (awsAccountId: string) => {
   console.log(loginResult)
 }
 
-const setKubernetesConfig = (awsAccountId: string, encodedKubeConfig: string, cluster: string) => {
+const setKubernetesConfig = (
+  awsAccountId: string,
+  encodedKubeConfig: string,
+  cluster: string
+) => {
   const kubeConfig = Buffer.from(encodedKubeConfig, "base64").toString()
   const homeDir = os.homedir()
   const kubePath = path.join(homeDir, ".kube")
@@ -67,6 +91,7 @@ const main = () => {
     INPUT_AWS_SECRET_ACCESS_KEY: awsSecretAccessKey,
     INPUT_CLUSTER: cluster,
     INPUT_KUBE_CONFIG: encodedKubeConfig,
+    INPUT_AWS_IAM_ROLE_NAME: awsIamRoleName,
   } = process.env
 
   if (!awsAccountId) {
@@ -86,6 +111,9 @@ const main = () => {
   }
 
   setAWSCredentials(awsAccessKeyId, awsSecretAccessKey)
+  if (awsIamRoleName) {
+    setAWSAssumeRoleProfile(awsIamRoleName, awsAccountId)
+  }
   dockerECRLogin(awsAccountId)
   setKubernetesConfig(awsAccountId, encodedKubeConfig, cluster)
 }
