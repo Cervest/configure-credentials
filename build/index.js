@@ -47,8 +47,9 @@ const setAWSAssumeRoleProfile = (awsIamRoleName, awsAccountId) => {
     fs.appendFileSync(confPath, profile);
     console.log("AWS assume role profile added to ~/.aws/config");
 };
-const dockerECRLogin = (awsAccountId) => {
-    const loginPassword = shell("aws ecr get-login-password").trim();
+const dockerECRLogin = (awsAccountId, awsIamRoleName) => {
+    const awsProfile = awsIamRoleName || "default";
+    const loginPassword = shell(`aws ecr get-login-password --profile ${awsProfile}`).trim();
     const loginResult = shell(`docker login -u AWS -p ${loginPassword} https://${awsAccountId}.dkr.ecr.eu-west-1.amazonaws.com`);
     console.log(loginResult);
 };
@@ -83,7 +84,7 @@ const main = () => {
     if (awsIamRoleName) {
         setAWSAssumeRoleProfile(awsIamRoleName, awsAccountId);
     }
-    dockerECRLogin(awsAccountId);
+    dockerECRLogin(awsAccountId, awsIamRoleName);
     setKubernetesConfig(awsAccountId, encodedKubeConfig, cluster);
 };
 main();
