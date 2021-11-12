@@ -47,10 +47,10 @@ const setAWSAssumeRoleProfile = (awsIamRoleName, awsAccountId) => {
     fs.appendFileSync(confPath, profile);
     console.log("AWS assume role profile added to ~/.aws/config");
 };
-const dockerECRLogin = (awsAccountId, awsIamRoleName) => {
+const dockerECRLogin = (ecrAwsAccountId, awsIamRoleName) => {
     const awsProfile = awsIamRoleName || "default";
     const loginPassword = shell(`aws ecr get-login-password --profile ${awsProfile}`).trim();
-    const loginResult = shell(`docker login -u AWS -p ${loginPassword} https://${awsAccountId}.dkr.ecr.eu-west-1.amazonaws.com`);
+    const loginResult = shell(`docker login -u AWS -p ${loginPassword} https://${ecrAwsAccountId}.dkr.ecr.eu-west-1.amazonaws.com`);
     console.log(loginResult);
 };
 const setKubernetesConfig = (awsAccountId, encodedKubeConfig, cluster) => {
@@ -64,7 +64,7 @@ const setKubernetesConfig = (awsAccountId, encodedKubeConfig, cluster) => {
     console.log("Kubernetes config written to ~/.kube/config");
 };
 const main = () => {
-    const { INPUT_AWS_ACCOUNT_ID: awsAccountId, INPUT_AWS_ACCESS_KEY_ID: awsAccessKeyId, INPUT_AWS_SECRET_ACCESS_KEY: awsSecretAccessKey, INPUT_CLUSTER: cluster, INPUT_KUBE_CONFIG: encodedKubeConfig, INPUT_AWS_IAM_ROLE_NAME: awsIamRoleName, } = process.env;
+    const { INPUT_AWS_ACCOUNT_ID: awsAccountId, INPUT_ECR_AWS_ACCOUNT_ID: ecrAwsAccountId, INPUT_AWS_ACCESS_KEY_ID: awsAccessKeyId, INPUT_AWS_SECRET_ACCESS_KEY: awsSecretAccessKey, INPUT_CLUSTER: cluster, INPUT_KUBE_CONFIG: encodedKubeConfig, INPUT_AWS_IAM_ROLE_NAME: awsIamRoleName, } = process.env;
     if (!awsAccountId) {
         throw "aws-account-id must be set.";
     }
@@ -84,7 +84,9 @@ const main = () => {
     if (awsIamRoleName) {
         setAWSAssumeRoleProfile(awsIamRoleName, awsAccountId);
     }
-    dockerECRLogin(awsAccountId, awsIamRoleName);
+    if (ecrAwsAccountId) {
+        dockerECRLogin(ecrAwsAccountId, awsIamRoleName);
+    }
     setKubernetesConfig(awsAccountId, encodedKubeConfig, cluster);
 };
 main();

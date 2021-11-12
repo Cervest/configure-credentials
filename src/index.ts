@@ -58,13 +58,13 @@ const setAWSAssumeRoleProfile = (
   console.log("AWS assume role profile added to ~/.aws/config")
 }
 
-const dockerECRLogin = (awsAccountId: string, awsIamRoleName?: string) => {
+const dockerECRLogin = (ecrAwsAccountId: string, awsIamRoleName?: string) => {
   const awsProfile = awsIamRoleName || "default"
   const loginPassword = shell(
     `aws ecr get-login-password --profile ${awsProfile}`
   ).trim()
   const loginResult = shell(
-    `docker login -u AWS -p ${loginPassword} https://${awsAccountId}.dkr.ecr.eu-west-1.amazonaws.com`
+    `docker login -u AWS -p ${loginPassword} https://${ecrAwsAccountId}.dkr.ecr.eu-west-1.amazonaws.com`
   )
   console.log(loginResult)
 }
@@ -90,6 +90,7 @@ const setKubernetesConfig = (
 const main = () => {
   const {
     INPUT_AWS_ACCOUNT_ID: awsAccountId,
+    INPUT_ECR_AWS_ACCOUNT_ID: ecrAwsAccountId,
     INPUT_AWS_ACCESS_KEY_ID: awsAccessKeyId,
     INPUT_AWS_SECRET_ACCESS_KEY: awsSecretAccessKey,
     INPUT_CLUSTER: cluster,
@@ -117,7 +118,9 @@ const main = () => {
   if (awsIamRoleName) {
     setAWSAssumeRoleProfile(awsIamRoleName, awsAccountId)
   }
-  dockerECRLogin(awsAccountId, awsIamRoleName)
+  if (ecrAwsAccountId) {
+    dockerECRLogin(ecrAwsAccountId, awsIamRoleName)
+  }
   setKubernetesConfig(awsAccountId, encodedKubeConfig, cluster)
 }
 

@@ -2,6 +2,7 @@ name: init-credentials
 description: "Set up AWS and Kubernetes credentials to be used by subsequent steps."
 inputs:
   aws_account_id:
+    description: "Which AWS account ID to deploy into (e.g. with Terraform, K8s)."
     required: true
   aws_access_key_id:
     required: true
@@ -14,6 +15,8 @@ inputs:
     required: true
   aws_iam_role_name:
     description: "Used to set up another local AWS profile for assuming another IAM role; required for cross-account k8s auth."
+  ecr_aws_account_id:
+    description: "If logging in to ECR, which AWS account ID the ECR repo is in."
 runs:
   using: "node12"
   main: "build/index.js"
