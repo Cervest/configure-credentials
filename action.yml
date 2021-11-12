@@ -15,8 +15,8 @@ inputs:
     required: true
   aws_iam_role_name:
     description: "Used to set up another local AWS profile for assuming another IAM role; required for cross-account k8s auth."
-  ecr_aws_account_id:
-    description: "If logging in to ECR, which AWS account ID the ECR repo is in."
+  ecr_aws_account_ids:
+    description: "A list of comma-separated AWS account IDs with which to perform docker login commands for ECR."
 runs:
   using: "node12"
   main: "build/index.js"
