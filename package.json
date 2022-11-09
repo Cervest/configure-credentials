@@ -1,5 +1,5 @@
 {
-  "name": "thing",
+  "name": "configure-credentials",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "files": [
@@ -12,7 +12,7 @@
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
-    "@types/node": "12.12.2",
+    "@types/node": "16.18.3",
     "@typescript-eslint/eslint-plugin": "2.26.0",
     "@typescript-eslint/parser": "2.26.0",
     "eslint": "6.8.0",
